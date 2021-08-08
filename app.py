@@ -64,7 +64,12 @@ def ip_page():
 
 @app.route('/about')
 def about_page():
-    return render_template('about.html'), 200
+    response = make_response(render_template('about.html'), 200)
+    response.headers['Content-Type'] = 'text/html; charset=utf-8'
+    response.headers['Server'] = 'dont push it'
+    response.headers['info'] = '/about'
+    response.headers['remote_addr'] = try_for_real_ip(request.remote_addr, request.headers)
+    return response
 
 
 @app.errorhandler(404)
