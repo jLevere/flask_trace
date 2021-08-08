@@ -1,10 +1,30 @@
 from flask import Flask, request, make_response, render_template
 from flask_bootstrap import Bootstrap
 
+import ipaddress
+
 import json
 app = Flask(__name__)
 
 bootstrap = Bootstrap(app)
+
+
+
+# get remote address.
+'''
+Check if address is private, if it is, then its being proxied, so try to get the
+real address.
+'''
+def try_for_real_ip(ip, headers):
+    print(ip)
+    ip = str(ip)
+    headers_dict = dict((headers).to_wsgi_list())
+
+    if ipaddress.ip_address(ip).is_private and 'X-Forwarded-For' in headers_dict:
+        ip = headers_dict['X-Forwarded-For']
+        print(ip)
+
+    return ip
 
 @app.route('/', methods=['GET', 'POST', 'OPTIONS', 'TRACE'])
 def json_page():
@@ -15,7 +35,7 @@ def json_page():
     response.headers['Content-Type'] = 'application/json'
     response.headers['Server'] = 'dont push it'
     response.headers['info'] = '/about'
-    response.headers['remote_addr'] = request.remote_addr
+    response.headers['remote_addr'] = try_for_real_ip(request.remote_addr, request.headers)
 
     return response
 
@@ -28,20 +48,18 @@ def text_page():
     response.headers['Content-Type'] = 'text/plain; charset=utf-8'
     response.headers['Server'] = 'dont push it'
     response.headers['info'] = '/about'
-    response.headers['remote_addr'] = request.remote_addr
+    response.headers['remote_addr'] = try_for_real_ip(request.remote_addr, request.headers)
 
     return response
 
 @app.route('/ip')
 def ip_page():
-    ip_addr = str(request.remote_addr)
 
-    response = make_response(ip_addr, 200)
+    response = make_response(try_for_real_ip(request.remote_addr, request.headers), 200)
     response.headers['Content-Type'] = 'text/plain; charset=utf-8'
     response.headers['Server'] = 'dont push it'
     response.headers['info'] = '/about'
-    response.headers['remote_addr'] = request.remote_addr
-
+    response.headers['remote_addr'] = try_for_real_ip(request.remote_addr, request.headers)
     return response
 
 @app.route('/about')
@@ -70,7 +88,7 @@ def method_not_supported(e):
     response.headers['Content-Type'] = 'text/plain; charset=utf-8'
     response.headers['Server'] = 'dont push it'
     response.headers['info'] = '/about'
-    response.headers['remote_addr'] = request.remote_addr
+    response.headers['remote_addr'] = try_for_real_ip(request.remote_addr, request.headers)
 
     return response, 405
 
