@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}about trace{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Trace service</h1>
+
+    <p>This webapp primarily returns the headers of your request in serveral formats including plain text and json.</p>
+    <p>The request ip is always provided in the response headers as 'remote_addr'.</p>
+    
+    
+</div>
+<body>
+    <p>The provided pages are: <a href="/">Json headers<a>, <a href="/headers/text">plain text headers</a>, and <a href="/ip"> plain text request ip</a></p>
+</body>
+
+{% endblock %}
