@@ -1,7 +1,10 @@
 from flask import Flask, request, make_response, render_template
+from flask_bootstrap import Bootstrap
 
 import json
 app = Flask(__name__)
+
+bootstrap = Bootstrap(app)
 
 @app.route('/headers/json')
 def json_page():
