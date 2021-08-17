@@ -16,28 +16,36 @@ Check if address is private, if it is, then its being proxied, so try to get the
 real address.
 '''
 def try_for_real_ip(ip, headers):
-    print(ip)
     ip = str(ip)
     headers_dict = dict((headers).to_wsgi_list())
 
     if ipaddress.ip_address(ip).is_private and 'X-Forwarded-For' in headers_dict:
         ip = headers_dict['X-Forwarded-For']
-        print(ip)
 
     return ip
+
+def build_resp(request, msg, response_code, content_type):
+
+    response = make_response(msg, response_code)
+    response.headers['Content-Type'] = content_type
+    response.headers['Server'] = 'dont push it'
+    response.headers['info'] = '/about'
+    response.headers['remote_addr'] = try_for_real_ip(request.remote_addr, request.headers)
+
+    return response
 
 @app.route('/', methods=['GET', 'POST', 'OPTIONS', 'TRACE'])
 def json_page():
 
     headers = dict((request.headers).to_wsgi_list())
    
-    response = make_response(headers, 200)
-    response.headers['Content-Type'] = 'application/json'
-    response.headers['Server'] = 'dont push it'
-    response.headers['info'] = '/about'
-    response.headers['remote_addr'] = try_for_real_ip(request.remote_addr, request.headers)
+    # response = make_response(headers, 200)
+    # response.headers['Content-Type'] = 'application/json'
+    # response.headers['Server'] = 'dont push it'
+    # response.headers['info'] = '/about'
+    # response.headers['remote_addr'] = try_for_real_ip(request.remote_addr, request.headers)
 
-    return response
+    return build_resp(request, headers, 200, 'application/json')
 
 @app.route('/headers/text')
 def text_page():
@@ -50,7 +58,7 @@ def text_page():
     response.headers['info'] = '/about'
     response.headers['remote_addr'] = try_for_real_ip(request.remote_addr, request.headers)
 
-    return response
+    return build_resp(request, headers, 200, 'text/plain; charset=utf-8')
 
 @app.route('/ip')
 def ip_page():
