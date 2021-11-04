@@ -6,4 +6,4 @@ This flask webapp echos information about incoming requests in different formats
 returns the seen ip of incoming connections in plain text.  It supports 'GET', 'POST', 'OPTIONS', 'TRACE' methods.  There isnt really any reason it cant support others,
 just didnt think they would be used as much.  On reciving an unsupported method it returns an error message showing allowed methods.
 
-You can try it out at this address:  headers.ohmic.contact   Just give the webapp a few seconds to come up the first time.
+You can try it out at this address:  http://headers.ohmic.contact/about  Just give the webapp a few seconds to come up the first time.
